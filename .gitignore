@@ -2,6 +2,10 @@
 *.o
 *.a
 *.so
+api/lib/*.a
+api/lib/*.so
+api/rpbase/obj/*.o
+api/rpbase/src/rp
 health
 scan
 dcf77
