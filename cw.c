@@ -9,7 +9,13 @@ float frequency1		= 3575000.0; // Betriebsfrequenz in Hz (max. 60MHz)
 float amplitude1_on		= 1.0;	     // Pegel bei Signalausgabe in Vpp (max. 1.0 Vpp)
 float amplitude1_off		= 0.0;	     // Pegel bei Ruheausgabe 
 
-int CWSpeed			= 100;	     // Basislänge (Punkt) in ms
+// Länge eines Punktes:
+//  1 WpM = 1200 ms ~   5 BpM
+//  2 WpM =  240 ms ~  25 BpM
+// 10 WpM =  120 ms ~  50 BpM
+// 20 WpM =   60 ms ~ 100 BpM
+
+int CWSpeed			= 120;	     // Basislänge (Punkt) in ms
 
 //-------------------------------------------------------------------
 void sigcode(int Bitinfo)
@@ -201,7 +207,6 @@ int main()
     fprintf(stderr, "Init-Funktion failed\n\n");
   }
 
-//-----------------------------------------------
 //Generator CH 1
   float phase1			= 0.0;      // ° (-180.0° ... 0.0° ... 180.0°)
   rp_GenMode(RP_CH_1, RP_GEN_MODE_CONTINUOUS); // Kontinuierlich

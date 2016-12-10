@@ -4,24 +4,31 @@
 #include <time.h>
 #include <rp.h>
 
+// Globale Variablen
+float frequency1		= 3575000.0; // Hz (max. 60MHz)
+float amplitude1		= 1.0;	    // Vpp (max. 1.0 Vpp)
+
+
+//-----------------------------------------------
 void sigcode(int Bitinfo)
 {
       if(Bitinfo)
       {	// long Pause
-        rp_GenAmp(RP_CH_1,0.2);
+        rp_GenAmp(RP_CH_1,amplitude1 * 0.2);
         usleep(200000);
-        rp_GenAmp(RP_CH_1,1.0);
+        rp_GenAmp(RP_CH_1,amplitude1);
         usleep(800000);
       }
       else
       {
-        rp_GenAmp(RP_CH_1,0.2);
+        rp_GenAmp(RP_CH_1,amplitude1 * 0.2);
         usleep(100000);
-        rp_GenAmp(RP_CH_1,1.0);
+        rp_GenAmp(RP_CH_1,amplitude1);
         usleep(900000);
       }
 }
 
+//-----------------------------------------------
 int main()
 {
   int i,n;
@@ -38,11 +45,8 @@ int main()
     fprintf(stderr, "Init-Funktion failed\n\n");
   }
 
-//-----------------------------------------------
 //Generator CH 1
-  float frequency1		= 3575000.0; // Hz (max. 60MHz)
   float phase1			= 0.0;      // ° (-180.0° ... 0.0° ... 180.0°)
-  float amplitude1		= 1.0;	    // Vpp (max. 1.0 Vpp)
  
   rp_GenMode(RP_CH_1, RP_GEN_MODE_CONTINUOUS); // Kontinuierlich
   rp_GenWaveform(RP_CH_1, RP_WAVEFORM_SINE);   // Sinus
@@ -65,7 +69,7 @@ int main()
   {
     timestamp = time(NULL);
     ts=localtime(&timestamp);
-    printf("Zeit: %02d.%02d.%04d - %02d:%02d:%02d \n",ts->tm_mday,ts->tm_mon+1,ts->tm_year+1900,ts->tm_hour,ts->tm_min,ts->tm_sec);
+    printf("Übertrage Zeit für: %02d.%02d.%04d - %02d:%02d:%02d \n",ts->tm_mday,ts->tm_mon+1,ts->tm_year+1900,ts->tm_hour,ts->tm_min+1,ts->tm_sec);
     for (i=0;i<59;i++)
     {
       printf("Step: %d = %d\n",i,Bitinfo);
