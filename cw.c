@@ -4,76 +4,132 @@
 #include <time.h>
 #include <rp.h>
 
+// Globale Variablen:
+float frequency1		= 3575000.0; // Betriebsfrequenz in Hz (max. 60MHz)
+float amplitude1_on		= 1.0;	     // Pegel bei Signalausgabe in Vpp (max. 1.0 Vpp)
+float amplitude1_off		= 0.0;	     // Pegel bei Ruheausgabe 
+
+int CWSpeed			= 100;	     // Basislänge (Punkt) in ms
+
+//-------------------------------------------------------------------
 void sigcode(int Bitinfo)
 {
-      if(Bitinfo)
-      {	// long 
-        rp_GenAmp(RP_CH_1,1.0);
-        usleep(200000);
-        rp_GenAmp(RP_CH_1,0.0);
-        usleep(100000);
-      }
-      else
-      { // short
-        rp_GenAmp(RP_CH_1,1.0);
-        usleep(100000);
-        rp_GenAmp(RP_CH_1,0.0);
-        usleep(100000);
-      }
+  switch(Bitinfo)
+  {
+    case '-': 
+            {	// long 
+            rp_GenAmp(RP_CH_1,amplitude1_on);
+            usleep(CWSpeed * 3000);
+            rp_GenAmp(RP_CH_1,amplitude1_off);
+            usleep(CWSpeed * 1000);
+            }
+            break;
+
+    case '.': 
+            { // short
+            rp_GenAmp(RP_CH_1,amplitude1_on);
+            usleep(CWSpeed * 1000);
+            rp_GenAmp(RP_CH_1,amplitude1_off);
+            usleep(CWSpeed * 1000);
+            }
+            break;
+
+    case ' ': 
+            {	// silence
+            rp_GenAmp(RP_CH_1,amplitude1_off);
+            usleep(CWSpeed * 9000);
+            }
+            break;
+  }
 }
 
+//-------------------------------------------------------------------
 int main()
 {
   int i,n;
   int Bitinfo   = 0; 
   char input	= 0;
+  char *aktchar;
+  char TextArray[] = "Automatic Generated Red Pitaya Test Bake de NOCALL";
   time_t timestamp;
   struct tm *ts;
 
   unsigned char *Zeichencode[127];
   
-  // 0 = Kurz ; 1 = Lang
-  char A[]     ={0,1};
-  char B[]     ={1,0,0,0};
-  char C[]     ={1,0,1,0};
-  char D[]     ={1,0,0};
-  char E[]     ={0};
-  char F[]     ={0,0,1,0};
-  char G[]     ={1,1,0};
-  char H[]     ={0,0,0,0};
-  char I[]     ={0,0};
-  char J[]     ={0,1,1,1};
-  char K[]     ={1,0,1};
-  char L[]     ={0,1,0,0};
-  char M[]     ={1,1};
-  char N[]     ={1,0};
-  char O[]     ={1,1,1};
-  char P[]     ={0,1,1,0};
-  char Q[]     ={1,1,0,1};
-  char R[]     ={0,1,0};
-  char S[]     ={0,0,0};
-  char T[]     ={1};
-  char U[]     ={0,0,1};
-  char V[]     ={0,0,0,1};
-  char W[]     ={0,1,1};
-  char X[]     ={1,0,0,1};
-  char Y[]     ={1,0,1,1};
-  char Z[]     ={1,1,0,0};
-  char Zero[]  ={1,1,1,1,1};
-  char Eins[]  ={0,1,1,1,1};
-  char Zwei[]  ={0,0,1,1,1};
-  char Drei[]  ={0,0,0,1,1};
-  char Vier[]  ={0,0,0,0,1};
-  char Funf[]  ={0,0,0,0,0};
-  char Sechs[] ={1,0,0,0,0};
-  char Sieben[]={1,1,0,0,0};
-  char Acht[]  ={1,1,1,0,0};
-  char Neun[]  ={1,1,1,1,0};
+  // . = Kurz ; - = Lang
+  char A[]     ={'.','-',0};
+  char B[]     ={'-','.','.','.',0};
+  char C[]     ={'-','.','-','.',0};
+  char D[]     ={'-','.','.',0};
+  char E[]     ={'.',0};
+  char F[]     ={'.','.','-','.',0};
+  char G[]     ={'-','-','.',0};
+  char H[]     ={'.','.','.','.',0};
+  char I[]     ={'.','.',0};
+  char J[]     ={'.','-','-','-',0};
+  char K[]     ={'-','.','-',0};
+  char L[]     ={'.','-','.','.',0};
+  char M[]     ={'-','-',0};
+  char N[]     ={'-','.',0};
+  char O[]     ={'-','-','-',0};
+  char P[]     ={'.','-','-','.',0};
+  char Q[]     ={'-','-','.','-',0};
+  char R[]     ={'.','-','.',0};
+  char S[]     ={'.','.','.',0};
+  char T[]     ={'-',0};
+  char U[]     ={'.','.','-',0};
+  char V[]     ={'.','.','.','-',0};
+  char W[]     ={'.','-','-',0};
+  char X[]     ={'-','.','.','-',0};
+  char Y[]     ={'-','.','-','-',0};
+  char Z[]     ={'-','-','.','.',0};
+  char Zero[]  ={'-','-','-','-','-',0};
+  char Eins[]  ={'.','-','-','-','-',0};
+  char Zwei[]  ={'.','.','-','-','-',0};
+  char Drei[]  ={'.','.','.','-','-',0};
+  char Vier[]  ={'.','.','.','.','-',0};
+  char Funf[]  ={'.','.','.','.','.',0};
+  char Sechs[] ={'-','.','.','.','.',0};
+  char Sieben[]={'-','-','.','.','.',0};
+  char Acht[]  ={'-','-','-','.','.',0};
+  char Neun[]  ={'-','-','-','-','.',0};
+
+  char Space[]   = {' ',0};
+  char Punkt[]   = {'.','-','.','-','.','-',0};
+  char Komma[]   = {'-','-','.','.','-','-',0};
+  char DPunkt[]  = {'-','-','-','.','.','.',0};
+  char Simikol[] = {'-','.','-','.','-','.',0};
+  char Frage[]   = {'.','.','-','-','.','.',0};
+  char Strich[]  = {'-','.','.','.','.','-',0};
+  char Ustrich[] = {'.','.','-','-','.','-',0};
+  char KlamAuf[] = {'-','.','-','-','.',0};
+  char KlamZu[]  = {'-','.','-','-','.','-',0};
+  char Apostro[] = {'.','-','-','-','-','.',0};
+  char Gleich[]  = {'-','.','.','.','-',0};
+  char Plus[]    = {'.','-','.','-','.',0};
+  char Sstrich[] = {'-','.','.','-','.',0};
+  char AT[]      = {'.','-','-','.','-','.',0};
   
   // Init Pointer-Array
   for(i=0;i<127;i++)
     Zeichencode[i] = NULL;
-    
+
+  Zeichencode[32] = Space;
+  Zeichencode[46] = Punkt;
+  Zeichencode[44] = Komma;
+  Zeichencode[58] = DPunkt;
+  Zeichencode[59] = Simikol;
+  Zeichencode[63] = Frage;
+  Zeichencode[45] = Strich;
+  Zeichencode[95] = Ustrich;
+  Zeichencode[40] = KlamAuf;
+  Zeichencode[41] = KlamZu;
+  Zeichencode[39] = Apostro;
+  Zeichencode[61] = Gleich;
+  Zeichencode[43] = Plus;
+  Zeichencode[47] = Sstrich;
+  Zeichencode[64] = AT;
+      
   Zeichencode[48] = Zero;
   Zeichencode[49] = Eins;
   Zeichencode[50] = Zwei;
@@ -138,7 +194,7 @@ int main()
   Zeichencode[90]  = Z;
   Zeichencode[122] = Z;
  
-  printf("\n CW-Geber \n");
+  printf("\n CW-Bake \n");
   
   if(rp_Init() != RP_OK)
   {
@@ -147,35 +203,30 @@ int main()
 
 //-----------------------------------------------
 //Generator CH 1
-  float frequency1		= 3575000.0; // Hz (max. 60MHz)
   float phase1			= 0.0;      // ° (-180.0° ... 0.0° ... 180.0°)
-  float amplitude1		= 1.0;	    // Vpp (max. 1.0 Vpp)
- 
   rp_GenMode(RP_CH_1, RP_GEN_MODE_CONTINUOUS); // Kontinuierlich
   rp_GenWaveform(RP_CH_1, RP_WAVEFORM_SINE);   // Sinus
   rp_GenFreq(RP_CH_1,frequency1);
   rp_GenPhase(RP_CH_1,phase1);
-  rp_GenAmp(RP_CH_1,0.0); // No Signal
+  rp_GenAmp(RP_CH_1,amplitude1_off); // No Signal
 
   rp_GenOutEnable(RP_CH_1);
 
-  printf("Startup: 59 [Sync]\n");
-  sleep(1);
+  timestamp = time(NULL);
+  ts=localtime(&timestamp);
+  printf("Zeit: %02d.%02d.%04d - %02d:%02d:%02d \n",ts->tm_mday,ts->tm_mon+1,ts->tm_year+1900,ts->tm_hour,ts->tm_min,ts->tm_sec);
   
-  n= 0;
-  while(1)
+  for(n=0;(n< sizeof(TextArray)) & (TextArray[n] != 0);n++)
   {
-    input = getch();
+    input = TextArray[n];
+    aktchar = Zeichencode[input];
     
-    aktchar = *Zeichencode[input];
-    
-    timestamp = time(NULL);
-    ts=localtime(&timestamp);
-    printf("Zeit: %02d.%02d.%04d - %02d:%02d:%02d \n",ts->tm_mday,ts->tm_mon+1,ts->tm_year+1900,ts->tm_hour,ts->tm_min,ts->tm_sec);
-
-    for(i=0;i<20;i++)
-      sigcode(1);
-    n++;
+    if(aktchar != 0)
+    {
+      for(i=0;(i< sizeof(aktchar)) & (aktchar[i] != 0);i++)
+        sigcode(aktchar[i]);
+      usleep(CWSpeed * 3000);  // Sleep in char
+    }
   }
 
   // Signalgenerator aus
