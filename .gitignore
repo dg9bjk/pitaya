@@ -1,6 +1,10 @@
 *~
+*.o
+*.a
+*.so
 health
 scan
 dcf77
 txoff
 cw
+rp
