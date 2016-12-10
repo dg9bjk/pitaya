@@ -91,7 +91,7 @@ int main()
     sleep(1);
   }while((timestamp % 60) != 58);
 
-//  rp_GenOutEnable(RP_CH_1);
+  rp_GenOutEnable(RP_CH_1);
   printf("Startup: 59 [Sync]\n");
   sleep(1);
   
