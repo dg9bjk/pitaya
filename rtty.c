@@ -242,7 +242,7 @@ int main()
     {
       if((((!Zahlenmode) & (!Zeichenmode)) | Zahlenmode) & (aktchar[0] == 'B'))
       {
-        printf("Debug Bmode\n");
+//        printf("Debug Bmode\n");
         st_char = St__B;
         for(i=1;(i< strlen(st_char)) & (st_char[i] != 0);i++)
         {
@@ -254,7 +254,7 @@ int main()
       
       if((((!Zahlenmode) & (!Zeichenmode)) | Zeichenmode) & (aktchar[0] == 'Z'))
       {
-        printf("Debug Zmode\n");
+//        printf("Debug Zmode\n");
         st_char = St__Z;
         for(i=1;(i< strlen(st_char)) & (st_char[i] != 0);i++)
         {
@@ -266,7 +266,7 @@ int main()
       
       for(i=1;(i< strlen(aktchar)) & (aktchar[i] != 0);i++)
       {
-        printf("Debug: %c\n",aktchar[i]);
+//        printf("Debug: %c\n",aktchar[i]);
         sigcode(aktchar[i]);
       }
     }
