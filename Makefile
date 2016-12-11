@@ -1,5 +1,5 @@
 
-all:	health scan dcf77 cw txoff
+all:	health scan dcf77 cw rtty psk txoff
 
 health:	health.c
 	gcc -g -O0 -lrp health.c -o health
@@ -12,7 +12,13 @@ dcf77:	dcf77.c
 	
 cw:	cw.c
 	gcc -g -O0 -lrp cw.c -o cw
-	
+
+rtty:	rtty.c
+	gcc -g -O0 -lrp rtty.c -o rtty
+
+psk:	psk.c
+	gcc -g -O0 -lrp psk.c -o psk
+
 txoff:	txoff.c
 	gcc -g -O0 -lrp txoff.c -o txoff
 	
@@ -21,5 +27,7 @@ clean:
 	rm -f scan
 	rm -f dcf77
 	rm -f cw
+	rm -f rtty
+	rm -f psk
 	rm -f txoff
 	rm -f *~
