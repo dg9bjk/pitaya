@@ -7,7 +7,7 @@
 // Globale Variablen:
 float frequency1		= 3575000.0; // Betriebsfrequenz (Mittenfrequenz) in Hz (max. 60MHz)
 float amplitude1		= 1.0;	     // Pegel bei Signalausgabe in Vpp (max. 1.0 Vpp)
-float shift			= 200.0	     // Frequenzversatz in Hz	
+float shift			= 200.0;     // Frequenzversatz in Hz	
 int speed			= 333;	     // Zeichenlänge bei 300 Baud in µs 
 //-------------------------------------------------------------------
 // Bell 103 Norm 300 8N1
@@ -46,7 +46,7 @@ void sigcode(int Bitinfo)
 }
 
 //-------------------------------------------------------------------
-void decode(char input,char bitfolge)
+void decode(char *input,char *bitfolge)
 {
 
   int i;
@@ -90,7 +90,7 @@ int main()
   float phase1			= 0.0;      // ° (-180.0° ... 0.0° ... 180.0°)
   rp_GenMode(RP_CH_1, RP_GEN_MODE_CONTINUOUS); // Kontinuierlich
   rp_GenWaveform(RP_CH_1, RP_WAVEFORM_SINE);   // Sinus
-  rp_GenFreq(RP_CH_1,frequency1 - (space/2));
+  rp_GenFreq(RP_CH_1,frequency1 - (shift/2));
   rp_GenPhase(RP_CH_1,phase1);
   rp_GenAmp(RP_CH_1,amplitude1); 
 
@@ -99,7 +99,7 @@ int main()
   // Preamble for Sync
   for(i=0;i<10;i++)
   {
-    sugcode(1);
+    sigcode(1);
     sigcode(0);
   }
   
@@ -110,7 +110,7 @@ int main()
   for(n=0;(n< strlen(TextArray)) & (TextArray[n] != 0);n++)
   {
     input = TextArray[n];
-    decode(input,aktchat);
+    decode(&input,aktchar);
     
     if(aktchar != 0)
     {
@@ -125,7 +125,7 @@ int main()
   // Postamble
   for(i=0;i<10;i++)
   {
-    sugcode(1);
+    sigcode(1);
     sigcode(0);
   }
 
