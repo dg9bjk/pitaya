@@ -6,33 +6,30 @@
 
 // Globale Variablen:
 float frequency1		= 3575000.0; // Betriebsfrequenz (Mittenfrequenz) in Hz (max. 60MHz)
-float shift			= 150.0;     // Shift in Hz	
+float shift			= 270.0;     // Shift in Hz	
 float amplitude1		= 1.0;	     // Pegel bei Signalausgabe in Vpp (max. 1.0 Vpp)
 
+int speed			= 22;	     // Zeichenlänge in ms 
+// RTTY 45 = 45.45 Bd = 270 Hz Shift = Speed 22 ms/char
+// RTTY 50 = 50.00 Bd = 280 Hz Shift = Speed 20 ms/char
+// RTTY 75 = 75.00 Bd = 370 Hz Shift = Speed 13 ms/char
 
 //-------------------------------------------------------------------
 void sigcode(int Bitinfo)
 {
   switch(Bitinfo)
   {
-    case '-': 
-            {	// long 
+    case '0': 
+            {	// Space
             rp_GenFreq(RP_CH_1,frequency1 - (shift/2));
-            usleep(100000);
+            usleep(speed * 1000);
             }
             break;
 
-    case '.': 
-            { // short
+    case '1': 
+            { // Mark
             rp_GenFreq(RP_CH_1,frequency1 + (shift/2));
-            usleep(100000);
-            }
-            break;
-
-    case ' ': 
-            {	// silence
-            rp_GenFreq(RP_CH_1,frequency1 - (shift/2));
-            usleep(100000);
+            usleep(speed * 1000);
             }
             break;
   }
@@ -51,80 +48,75 @@ int main()
 
   unsigned char *Zeichencode[127];
   
-  // . = Kurz ; - = Lang
-  char A[]     ={'.','-',0};
-  char B[]     ={'-','.','.','.',0};
-  char C[]     ={'-','.','-','.',0};
-  char D[]     ={'-','.','.',0};
-  char E[]     ={'.',0};
-  char F[]     ={'.','.','-','.',0};
-  char G[]     ={'-','-','.',0};
-  char H[]     ={'.','.','.','.',0};
-  char I[]     ={'.','.',0};
-  char J[]     ={'.','-','-','-',0};
-  char K[]     ={'-','.','-',0};
-  char L[]     ={'.','-','.','.',0};
-  char M[]     ={'-','-',0};
-  char N[]     ={'-','.',0};
-  char O[]     ={'-','-','-',0};
-  char P[]     ={'.','-','-','.',0};
-  char Q[]     ={'-','-','.','-',0};
-  char R[]     ={'.','-','.',0};
-  char S[]     ={'.','.','.',0};
-  char T[]     ={'-',0};
-  char U[]     ={'.','.','-',0};
-  char V[]     ={'.','.','.','-',0};
-  char W[]     ={'.','-','-',0};
-  char X[]     ={'-','.','.','-',0};
-  char Y[]     ={'-','.','-','-',0};
-  char Z[]     ={'-','-','.','.',0};
-  char Zero[]  ={'-','-','-','-','-',0};
-  char Eins[]  ={'.','-','-','-','-',0};
-  char Zwei[]  ={'.','.','-','-','-',0};
-  char Drei[]  ={'.','.','.','-','-',0};
-  char Vier[]  ={'.','.','.','.','-',0};
-  char Funf[]  ={'.','.','.','.','.',0};
-  char Sechs[] ={'-','.','.','.','.',0};
-  char Sieben[]={'-','-','.','.','.',0};
-  char Acht[]  ={'-','-','-','.','.',0};
-  char Neun[]  ={'-','-','-','-','.',0};
+  // 1=Mark, 0=Space
+  char A[]       ={'B','1','1','0','0','0',0};
+  char B[]       ={'B','1','0','0','1','1',0};
+  char C[]       ={'B','0','1','1','1','0',0};
+  char D[]       ={'B','1','0','0','1','0',0};
+  char E[]       ={'B','1','0','0','0','0',0};
+  char F[]       ={'B','1','0','1','1','0',0};
+  char G[]       ={'B','0','1','0','1','1',0};
+  char H[]       ={'B','0','0','1','0','1',0};
+  char I[]       ={'B','0','1','1','0','0',0};
+  char J[]       ={'B','1','1','0','1','0',0};
+  char K[]       ={'B','1','1','1','1','0',0};
+  char L[]       ={'B','0','1','0','0','1',0};
+  char M[]       ={'B','0','0','1','1','1',0};
+  char N[]       ={'B','0','0','1','1','0',0};
+  char O[]       ={'B','0','0','0','1','1',0};
+  char P[]       ={'B','0','1','1','0','1',0};
+  char Q[]       ={'B','1','1','1','0','1',0};
+  char R[]       ={'B','0','1','0','1','0',0};
+  char S[]       ={'B','1','0','1','0','0',0};
+  char T[]       ={'B','0','0','0','0','1',0};
+  char U[]       ={'B','1','1','1','0','0',0};
+  char V[]       ={'B','0','1','1','1','1',0};
+  char W[]       ={'B','1','1','0','0','1',0};
+  char X[]       ={'B','1','0','1','1','1',0};
+  char Y[]       ={'B','1','0','1','0','1',0};
+  char Z[]       ={'B','1','0','0','0','1',0};
 
-  char Space[]   = {' ',0};
-  char Punkt[]   = {'.','-','.','-','.','-',0};
-  char Komma[]   = {'-','-','.','.','-','-',0};
-  char DPunkt[]  = {'-','-','-','.','.','.',0};
-  char Simikol[] = {'-','.','-','.','-','.',0};
-  char Frage[]   = {'.','.','-','-','.','.',0};
-  char Strich[]  = {'-','.','.','.','.','-',0};
-  char Ustrich[] = {'.','.','-','-','.','-',0};
-  char KlamAuf[] = {'-','.','-','-','.',0};
-  char KlamZu[]  = {'-','.','-','-','.','-',0};
-  char Apostro[] = {'.','-','-','-','-','.',0};
-  char Gleich[]  = {'-','.','.','.','-',0};
-  char Plus[]    = {'.','-','.','-','.',0};
-  char Sstrich[] = {'-','.','.','-','.',0};
-  char AT[]      = {'.','-','-','.','-','.',0};
+  char Zero[]    ={'Z','0','1','1','0','1',0};
+  char Eins[]    ={'Z','1','1','1','0','1',0};
+  char Zwei[]    ={'Z','1','1','0','0','1',0};
+  char Drei[]    ={'Z','1','0','0','0','0',0};
+  char Vier[]    ={'Z','0','1','0','1','0',0};
+  char Funf[]    ={'Z','0','0','0','0','1',0};
+  char Sechs[]   ={'Z','1','0','1','0','1',0};
+  char Sieben[]  ={'Z','1','1','1','0','0',0};
+  char Acht[]    ={'Z','0','1','1','0','0',0};
+  char Neun[]    ={'Z','0','0','0','1','1',0};
+  char Punkt[]   ={'Z','0','0','1','1','1',0};
+  char Komma[]   ={'Z','0','0','1','1','0',0};
+  char DPunkt[]  ={'Z','0','1','1','1','0',0};
+  char Frage[]   ={'Z','1','0','0','1','1',0};
+  char Strich[]  ={'Z','1','1','0','0','0',0};
+  char Sstrich[] ={'Z','1','0','1','1','1',0};
+  char KlamAuf[] ={'Z','1','1','1','1','0',0};
+  char KlamZu[]  ={'Z','0','1','0','0','1',0};
+  char Apostro[] ={'Z','1','0','1','0','0',0};
+  char Gleich[]  ={'Z','0','1','1','1','1',0};
+  char Plus[]    ={'Z','1','0','0','0','1',0};
+  char Bell[]    ={'Z','1','1','0','1','0',0};
+  char WerDa[]   ={'Z','1','0','0','1','0',0};
+
+  char Space[]   ={'N','0','0','1','0','0',0};
+  char St_CR[]   ={'N','0','0','0','1','0',0};
+  char St_NL[]   ={'N','0','1','0','0','0',0};
+  char St__B[]   ={'N','1','1','1','1','1',0};
+  char St__Z[]   ={'N','1','1','0','1','1',0};
+  char St__K[]   ={'N','0','0','0','0','0',0};
   
   // Init Pointer-Array
   for(i=0;i<127;i++)
     Zeichencode[i] = NULL;
 
   Zeichencode[32] = Space;
-  Zeichencode[46] = Punkt;
-  Zeichencode[44] = Komma;
-  Zeichencode[58] = DPunkt;
-  Zeichencode[59] = Simikol;
-  Zeichencode[63] = Frage;
-  Zeichencode[45] = Strich;
-  Zeichencode[95] = Ustrich;
-  Zeichencode[40] = KlamAuf;
-  Zeichencode[41] = KlamZu;
-  Zeichencode[39] = Apostro;
-  Zeichencode[61] = Gleich;
-  Zeichencode[43] = Plus;
-  Zeichencode[47] = Sstrich;
-  Zeichencode[64] = AT;
-      
+  Zeichencode[13] = St_CR;
+  Zeichencode[10] = St_NL;
+  Zeichencode[07] = Bell;
+  Zeichencode[22] = WerDa;
+
   Zeichencode[48] = Zero;
   Zeichencode[49] = Eins;
   Zeichencode[50] = Zwei;
@@ -135,6 +127,17 @@ int main()
   Zeichencode[55] = Sieben;
   Zeichencode[56] = Acht;
   Zeichencode[57] = Neun;
+  Zeichencode[46] = Punkt;
+  Zeichencode[44] = Komma;
+  Zeichencode[58] = DPunkt;
+  Zeichencode[63] = Frage;
+  Zeichencode[45] = Strich;
+  Zeichencode[47] = Sstrich;
+  Zeichencode[40] = KlamAuf;
+  Zeichencode[41] = KlamZu;
+  Zeichencode[39] = Apostro;
+  Zeichencode[61] = Gleich;
+  Zeichencode[43] = Plus;
 
   Zeichencode[65]  = A;
   Zeichencode[97]  = A;
@@ -207,6 +210,8 @@ int main()
 
   rp_GenOutEnable(RP_CH_1);
 
+  sleep(1);
+  
   timestamp = time(NULL);
   ts=localtime(&timestamp);
   printf("Zeit: %02d.%02d.%04d - %02d:%02d:%02d \n",ts->tm_mday,ts->tm_mon+1,ts->tm_year+1900,ts->tm_hour,ts->tm_min,ts->tm_sec);
@@ -218,12 +223,14 @@ int main()
     
     if(aktchar != 0)
     {
-      for(i=0;(i< sizeof(aktchar)) & (aktchar[i] != 0);i++)
+      for(i=1;(i< sizeof(aktchar)) & (aktchar[i] != 0);i++)
         sigcode(aktchar[i]);
       usleep(CWSpeed * 3000);  // Sleep in char
     }
   }
 
+  sleep(1);
+  
   // Signalgenerator aus
   rp_GenOutDisable(RP_CH_1);    
   rp_GenOutDisable(RP_CH_2);    
