@@ -1,5 +1,5 @@
 
-all:	health scan dcf77 cw rtty psk txoff
+all:	health scan dcf77 cw rtty psk packet txoff
 
 health:	health.c
 	gcc -g -O0 -lrp health.c -o health
@@ -18,6 +18,9 @@ rtty:	rtty.c
 
 psk:	psk.c
 	gcc -g -O0 -lrp psk.c -o psk
+
+packet:	packet.c
+	gcc -g -O0 -lrp packet.c -o packet
 
 txoff:	txoff.c
 	gcc -g -O0 -lrp txoff.c -o txoff
