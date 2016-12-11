@@ -211,16 +211,16 @@ int main()
   ts=localtime(&timestamp);
   printf("Zeit: %02d.%02d.%04d - %02d:%02d:%02d \n",ts->tm_mday,ts->tm_mon+1,ts->tm_year+1900,ts->tm_hour,ts->tm_min,ts->tm_sec);
   
-  for(n=0;(n< sizeof(TextArray)) & (TextArray[n] != 0);n++)
+  for(n=0;(n< strlen(TextArray)) & (TextArray[n] != 0);n++)
   {
     input = TextArray[n];
     aktchar = Zeichencode[input];
     
     if(aktchar != 0)
     {
-      for(i=0;(i< sizeof(aktchar)) & (aktchar[i] != 0);i++)
+      for(i=0;(i< strlen(aktchar)) & (aktchar[i] != 0);i++)
         sigcode(aktchar[i]);
-      usleep(CWSpeed * 3000);  // Sleep in char
+      usleep(100000);  // Sleep in char
     }
   }
 
