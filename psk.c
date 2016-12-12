@@ -333,7 +333,7 @@ int main()
   rp_GenPhase(RP_CH_1,phase1);
   rp_GenAmp(RP_CH_1,amplitude1); 
 
-//  rp_GenOutEnable(RP_CH_1);
+  rp_GenOutEnable(RP_CH_1);
 
   // Preamble for Sync
   for(i=0;i<10;i++)
