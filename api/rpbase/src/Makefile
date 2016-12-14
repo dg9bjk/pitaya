@@ -44,7 +44,7 @@ OBJECTS =	common.o \
 OBJS = $(patsubst %$(OBJEXT), $(OBJECTS_DIR)/%$(OBJEXT), $(OBJECTS))
 
 # GCC compiling & linking flags
-CFLAGS  = -std=gnu99 -Wall -Werror -fPIC -Ikiss_fft -Os -s
+CFLAGS  = -g -std=gnu99 -Wall -Werror -fPIC -Ikiss_fft -Os -s
 CFLAGS += -DVERSION=$(VERSION) -DREVISION=$(REVISION)
 CFLAGS += -I../../include
 LDFLAGS=-shared -Wl,--version-script=exportmap
