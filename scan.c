@@ -18,6 +18,8 @@ static uint32_t lastrdpt;		// Zwischenspeicher alter Lesepointer
 static struct sigaction sa1;		// Interrupt Handler
 static struct itimerval timer1;		// Interrupt Steuerung
 
+static const uint32_t *ADCwrpt		= (uint32_t*)0x40100018; // Mempointer akt_wr_pt_ADC
+static const uint32_t *raw_buffer	= (uint32_t*)0x40110000;
 //------------------------------------------------
 void getempty1(int signum1)
 {
@@ -26,21 +28,29 @@ void getempty1(int signum1)
 void getsignal1(int signum1)
 {
   //ADC_BUFFER_SIZE;  // 16 * 1024 = 16384
-  uint32_t distance		= 0;
+  //uint32_t distance	= 0;
 
   // Zeigerposition des Schreibzeigers
-  rp_AcqGetWritePointer(&lastwrpt);
-
-  if(lastwrpt < lastrdpt)	// went over the border ?
-    distance = (lastwrpt + (ADC_BUFFER_SIZE - lastrdpt));
-  else
-    distance = (lastwrpt - lastrdpt);
+  //rp_AcqGetWritePointer(&lastwrpt);
+  lastwrpt = (*ADCwrpt) & 0x3FFF;
+  
+  //if(lastwrpt < lastrdpt)	// went over the border ?
+  //  distance = (lastwrpt + (ADC_BUFFER_SIZE - lastrdpt));
+  //else
+  //  distance = (lastwrpt - lastrdpt);
 
   // Read ADC-Buffer
-  rp_AcqGetDataRaw(RP_CH_1, lastrdpt, &distance, &RxBuffer[RxBufferPos]);
+  //rp_AcqGetDataRaw(RP_CH_1, lastrdpt, &distance, &RxBuffer[RxBufferPos]);
+  //RxBufferPos = RxBufferPos + distance;
+  //lastrdpt = (lastrdpt + distance) % ADC_BUFFER_SIZE;	// Store last Read Data	
 
-  RxBufferPos = RxBufferPos + distance;
-  lastrdpt = (lastrdpt + distance) % ADC_BUFFER_SIZE;	// Store last Read Data	
+  while(lastrdpt != lastwrpt)
+  {
+    RxBuffer[RxBufferPos] = (raw_buffer[lastrdpt]) & 0x3FFF;
+    lastrdpt = (lastrdpt++) % ADC_BUFFER_SIZE;
+    if(RxBufferPos < MAXRX)
+      RxBufferPos++;
+  }      
 }
 
 //------------------------------------------------
@@ -163,8 +173,7 @@ int main()
   setitimer(ITIMER_REAL,&timer1,NULL);
 
   // Init the Position of Write-Pointer - Start everything from here
-  rp_AcqGetWritePointer(&lastwrpt);
-  lastrdpt  = lastwrpt;
+  rp_AcqGetWritePointer(&lastrdpt);
 
 //-----------------------
 // Ausgabe des Puffers

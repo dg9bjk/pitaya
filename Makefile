@@ -32,5 +32,6 @@ clean:
 	rm -f cw
 	rm -f rtty
 	rm -f psk
+	rm -f packet
 	rm -f txoff
 	rm -f *~
