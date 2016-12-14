@@ -26,58 +26,37 @@ void getempty1(int signum1)
 void getsignal1(int signum1)
 {
   //ADC_BUFFER_SIZE;  // 16 * 1024 = 16384
-
-  uint32_t wrpointer		= 0; // Schreibzeiger ADC-Buffer
   uint32_t distance		= 0;
-  uint32_t space		= 0;
-  uint32_t startpos		= 0;
-  uint32_t endpos		= 0;
 
   // Zeigerposition des Schreibzeigers
-  rp_AcqGetWritePointer(&wrpointer);	// Actual Postion of Writepointer
-    
-  if(wrpointer != lastwrpt )	// Write-Pointer moved?
-  {
-    lastwrpt = wrpointer;	// Store new Position
-        
-    startpos = lastrdpt;	// Restore last Readpostion
-    if(wrpointer > 0)		// If Write-Pointer over the Border
-      endpos   = (wrpointer - 1);	// -1 = the last Sample
-    else
-      endpos   = (ADC_BUFFER_SIZE -1); // borderprotection 
+  rp_AcqGetWritePointer(&lastwrpt);
 
-    if(endpos < startpos)	// went over the border ?
-      distance = (endpos + ((16*1024)-startpos));
-    else
-      distance = (endpos - startpos);
+  if(lastwrpt < lastrdpt)	// went over the border ?
+    distance = (lastwrpt + (ADC_BUFFER_SIZE - lastrdpt));
+  else
+    distance = (lastwrpt - lastrdpt);
 
-    space    = (MAXRX - RxBufferPos);	// Space in RxBuffer
-        
-    if(space < (distance + 1)) // RxBuffer at the end ?
-      endpos = ((startpos + space) % (16*1024)) -1;
-        
-//printf("Debug1: pter: %u start: %u ende: %u distance:%d \n",wrpointer,startpos,endpos,distance);
+  // Read ADC-Buffer
+  rp_AcqGetDataRaw(RP_CH_1, lastrdpt, &distance, &RxBuffer[RxBufferPos]);
 
-    // Read ADC-Buffer
-    rp_AcqGetDataPosRaw(RP_CH_1,startpos,endpos,&RxBuffer[RxBufferPos],&space);
-//printf("Debug2: count: %i: %u \n",count,i);
-
-    lastrdpt = ((startpos + space) % (16*1024));	// Store last Read Data	
-    RxBufferPos = RxBufferPos + space;			// Store the RxBuffer-position.
-  }
+  RxBufferPos = RxBufferPos + distance;
+  lastrdpt = (lastrdpt + distance) % ADC_BUFFER_SIZE;	// Store last Read Data	
 }
 
 //------------------------------------------------
-void TestGenerator()
+void TestGenerator(float freq)
 {
 
-  float frequency1		= 1000000.0; // Hz (max. 60MHz)
+  float frequency1		= 6000000.0; // Hz (max. 60MHz)
   float phase1			= 0.0;      // ° (-180.0° ... 0.0° ... 180.0°)
   float amplitude1		= 1.0;	    // Vpp (max. 1.0 Vpp)
 
-  float frequency2		= 1000000.0; // Hz (max. 60MHz)
+  float frequency2		= 6000000.0; // Hz (max. 60MHz)
   float phase2			= 90.0;      // ° (-180.0° ... 0.0° ... 180.0°)
   float amplitude2		= 1.0;	    // Vpp (max. 1.0 Vpp)
+
+  frequency1 = freq;
+  frequency2 = freq;
 
   // Generator 1
   rp_GenMode(RP_CH_1, RP_GEN_MODE_CONTINUOUS); // Kontinuierlich
@@ -95,15 +74,50 @@ void TestGenerator()
   rp_GenAmp(RP_CH_2,amplitude2);
   rp_GenOutEnable(RP_CH_2);
 }
+//------------------------------------------------
+int Samplespeed(int Samplerate)
+{
+  int timerrate2	= 0; // Halbe Puffer
+  int timerrate4	= 0; // Viertel Puffer
+  
+  switch(Samplerate)
+  {
+      case 1:	rp_AcqSetSamplingRate(RP_SMP_125M);		// :1     = 125,0   MHZ
+                timerrate2 = 65;				// ms
+                timerrate4 = 17;				// ms
+            break;
+      case 2:   rp_AcqSetSamplingRate(RP_SMP_15_625M);		// :8     =  15,625 MHz
+                timerrate2 = 524;				// ms
+                timerrate4 = 262;				// ms
+            break;
+      case 3:	rp_AcqSetSamplingRate(RP_SMP_1_953M);		// :64    =   1,953 MHz
+                timerrate2 = 4194;				// ms
+                timerrate4 = 2097;				// ms
+            break;
+      case 4:	rp_AcqSetSamplingRate(RP_SMP_122_070K);		// :1024  = 122,070 kHz
+                timerrate2 = 67100;				// ms
+                timerrate4 = 33550;				// ms
+            break;
+      case 5:	rp_AcqSetSamplingRate(RP_SMP_15_258K);		// :8192  =  15,258 kHz
+                timerrate2 = 536500;				// ms
+                timerrate4 = 268250;				// ms
+            break;
+      case 6:	rp_AcqSetSamplingRate(RP_SMP_1_907K);		// :65536 =   1,907 kHz
+                timerrate2 = 4294500;				// ms
+                timerrate4 = 2147250;				// ms
+            break;
+  }
+  return(timerrate4);
+}
 
 //------------------------------------------------
 int main()
 {
   int i,j;
   int pos;
+  int timerrate			= 0 ; // Sampleratenauswahl 1-6
   char display[101]		= ""; // Displayausgabe
   float Samplefreq		= 0 ; // Anzeige der Samplefrequenz
-  uint32_t wrpointer		= 0 ; // Schreibzeiger ADC-Buffer
 
   printf("\nScanprogramm \n");
   
@@ -116,19 +130,15 @@ int main()
   memset(RxBuffer,0x0,sizeof(RxBuffer));
   RxBufferPos = 0;
   
-  TestGenerator(); // Testsignal ein
+  // Einstellung der Samplefrequenz
+  timerrate = Samplespeed(1);
 
-  // Samplerate
-  //rp_AcqSetSamplingRate(RP_SMP_125M);		// :1     = 125,0   MHZ
-  rp_AcqSetSamplingRate(RP_SMP_15_625M);	// :8     =  15,625 MHz
-  //rp_AcqSetSamplingRate(RP_SMP_1_953M);	// :64    =   1,953 MHz
-  //rp_AcqSetSamplingRate(RP_SMP_122_070K);	// :1024  = 122,070 kHz
-  //rp_AcqSetSamplingRate(RP_SMP_15_258K);	// :8192  =  15,258 kHz
-  //rp_AcqSetSamplingRate(RP_SMP_1_907K);	// :65536 =   1,907 kHz
-
+  // Ausgabe der Samplerate  
   rp_AcqGetSamplingRateHz(&Samplefreq);
   printf("Samplefrequenz: %.3f kHz \n",Samplefreq/1000.0);
-  
+
+  TestGenerator(Samplefreq / 12); // Testsignal ein
+
   // Triggersignal für Erfassung (hier: Sofort)
   rp_AcqSetTriggerSrc(RP_TRIG_SRC_DISABLED);
 
@@ -140,11 +150,6 @@ int main()
   rp_AcqSetArmKeep(true);
   rp_AcqStart();
 
-  // Init the Position of Write-Pointer - Start everything from here
-  rp_AcqGetWritePointer(&wrpointer);
-  lastrdpt  = wrpointer;
-  lastwrpt  = wrpointer;
-
   // Signal auslesen über Timer
   memset(&sa1,0,sizeof(sa1));
   sigemptyset(&sa1.sa_mask);
@@ -152,15 +157,19 @@ int main()
   sigaction(SIGALRM,&sa1,NULL);
   
   timer1.it_value.tv_sec     = 0;
-  timer1.it_value.tv_usec    = 500;
+  timer1.it_value.tv_usec    = timerrate;
   timer1.it_interval.tv_sec  = 0;
-  timer1.it_interval.tv_usec = 500;
-  
+  timer1.it_interval.tv_usec = timerrate;
   setitimer(ITIMER_REAL,&timer1,NULL);
 
+  // Init the Position of Write-Pointer - Start everything from here
+  rp_AcqGetWritePointer(&lastwrpt);
+  lastrdpt  = lastwrpt;
+
 //-----------------------
-#define SCALA 512
-  while(RxBufferPos<MAXRX);
+// Ausgabe des Puffers
+  #define SCALA 512
+  while(RxBufferPos<MAXRX);	// Warte bis voll
   
    for(i=0;i<MAXRX; ++i)
   {
@@ -192,10 +201,9 @@ int main()
   sigaction(SIGALRM,&sa1,NULL);
 
   timer1.it_value.tv_sec     = 0;
-  timer1.it_value.tv_usec    = 100000;
+  timer1.it_value.tv_usec    = 1000000;
   timer1.it_interval.tv_sec  = 0;
-  timer1.it_interval.tv_usec = 100000;
-  
+  timer1.it_interval.tv_usec = 1000000;
   setitimer(ITIMER_REAL,&timer1,NULL);
 
   // ADC-Stop
