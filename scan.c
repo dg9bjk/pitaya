@@ -17,9 +17,6 @@ static uint32_t lastrdpt;		// Zwischenspeicher alter Lesepointer
 
 static struct sigaction sa1;		// Interrupt Handler
 static struct itimerval timer1;		// Interrupt Steuerung
-
-static const uint32_t *ADCwrpt		= (uint32_t*)0x40100018; // Mempointer akt_wr_pt_ADC
-static const uint32_t *raw_buffer	= (uint32_t*)0x40110000;
 //------------------------------------------------
 void getempty1(int signum1)
 {
@@ -28,29 +25,23 @@ void getempty1(int signum1)
 void getsignal1(int signum1)
 {
   //ADC_BUFFER_SIZE;  // 16 * 1024 = 16384
-  //uint32_t distance	= 0;
+  uint32_t distance	= 0;
 
   // Zeigerposition des Schreibzeigers
-  //rp_AcqGetWritePointer(&lastwrpt);
-  lastwrpt = (*ADCwrpt) & 0x3FFF;
+  rp_AcqGetWritePointer(&lastwrpt);
   
-  //if(lastwrpt < lastrdpt)	// went over the border ?
-  //  distance = (lastwrpt + (ADC_BUFFER_SIZE - lastrdpt));
-  //else
-  //  distance = (lastwrpt - lastrdpt);
-
+  if(lastwrpt < lastrdpt)	// went over the border ?
+    distance = (lastwrpt + (ADC_BUFFER_SIZE - lastrdpt));
+  else
+    distance = (lastwrpt - lastrdpt);
+  
+  if((RxBufferPos + distance) > MAXRX)
+    distance = MAXRX - RXBufferPos;
+    
   // Read ADC-Buffer
-  //rp_AcqGetDataRaw(RP_CH_1, lastrdpt, &distance, &RxBuffer[RxBufferPos]);
-  //RxBufferPos = RxBufferPos + distance;
-  //lastrdpt = (lastrdpt + distance) % ADC_BUFFER_SIZE;	// Store last Read Data	
-
-  while(lastrdpt != lastwrpt)
-  {
-    RxBuffer[RxBufferPos] = (raw_buffer[lastrdpt]) & 0x3FFF;
-    lastrdpt = (lastrdpt++) % ADC_BUFFER_SIZE;
-    if(RxBufferPos < MAXRX)
-      RxBufferPos++;
-  }      
+  rp_AcqGetDataRaw(RP_CH_1, lastrdpt, &distance, &RxBuffer[RxBufferPos]);
+  RxBufferPos = RxBufferPos + distance;
+  lastrdpt = (lastrdpt + distance) % ADC_BUFFER_SIZE;	// Store last Read Data	
 }
 
 //------------------------------------------------
@@ -87,37 +78,30 @@ void TestGenerator(float freq)
 //------------------------------------------------
 int Samplespeed(int Samplerate)
 {
-  int timerrate2	= 0; // Halbe Puffer
-  int timerrate4	= 0; // Viertel Puffer
-  
+int timerrate =0;
+    
   switch(Samplerate)
   {
       case 1:	rp_AcqSetSamplingRate(RP_SMP_125M);		// :1     = 125,0   MHZ
-                timerrate2 = 65;				// ms
-                timerrate4 = 17;				// ms
+                timerrate = 44;					// ms
             break;
       case 2:   rp_AcqSetSamplingRate(RP_SMP_15_625M);		// :8     =  15,625 MHz
-                timerrate2 = 524;				// ms
-                timerrate4 = 262;				// ms
+                timerrate = 350;				// ms
             break;
       case 3:	rp_AcqSetSamplingRate(RP_SMP_1_953M);		// :64    =   1,953 MHz
-                timerrate2 = 4194;				// ms
-                timerrate4 = 2097;				// ms
+                timerrate = 2796;				// ms
             break;
       case 4:	rp_AcqSetSamplingRate(RP_SMP_122_070K);		// :1024  = 122,070 kHz
-                timerrate2 = 67100;				// ms
-                timerrate4 = 33550;				// ms
+                timerrate = 44734;				// ms
             break;
       case 5:	rp_AcqSetSamplingRate(RP_SMP_15_258K);		// :8192  =  15,258 kHz
-                timerrate2 = 536500;				// ms
-                timerrate4 = 268250;				// ms
+                timerrate = 357667;				// ms
             break;
       case 6:	rp_AcqSetSamplingRate(RP_SMP_1_907K);		// :65536 =   1,907 kHz
-                timerrate2 = 4294500;				// ms
-                timerrate4 = 2147250;				// ms
+                timerrate = 2863000;				// ms
             break;
   }
-  return(timerrate4);
+  return(timerrate);
 }
 
 //------------------------------------------------
