@@ -125,13 +125,13 @@ int main()
   RxBufferPos = 0;
   
   // Einstellung der Samplefrequenz
-  timerrate = Samplespeed(1);
+  timerrate = Samplespeed(4);
 
   // Ausgabe der Samplerate  
   rp_AcqGetSamplingRateHz(&Samplefreq);
   printf("Samplefrequenz: %.3f kHz \n",Samplefreq/1000.0);
 
-  TestGenerator(Samplefreq / 12); // Testsignal ein
+//  TestGenerator(Samplefreq / 12); // Testsignal ein
 
   // Triggersignal für Erfassung (hier: Sofort)
   rp_AcqSetTriggerSrc(RP_TRIG_SRC_DISABLED);
@@ -161,7 +161,7 @@ int main()
 
 //-----------------------
 // Ausgabe des Puffers
-  #define SCALA 512
+  #define SCALA 256
   while(RxBufferPos<MAXRX);	// Warte bis voll
   
    for(i=0;i<MAXRX; ++i)
