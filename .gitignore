@@ -6,6 +6,11 @@ api/lib/*.a
 api/lib/*.so
 api/rpbase/obj/*.o
 api/rpbase/src/rp
+bake/bake
+bake/*~
+bake/*.o
+bake/*.a
+bake/*.so
 health
 scan
 dcf77
