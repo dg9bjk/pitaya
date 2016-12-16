@@ -1,0 +1,47 @@
+# Configuration of your BAKE
+#
+# The Text of the Station
+INFOTEXT: Red Pitaya Bake de DG9BJK
+
+# Up to 20 Frequencies kann be used
+# Array:
+# 1. Frequency in kHz  (0.1 ... 60000.0)
+# 2. max. Amplitude (0.001 ... 1.000)
+# 3. Output (1 , 2)
+FREQUENCY:   136.2 , 1.0 , 1
+FREQUENCY:   473.1 , 1.0 , 1
+FREQUENCY:  1810.0 , 1.0 , 1
+FREQUENCY:  3575.0 , 1.0 , 1
+FREQUENCY:  7040.0 , 1.0 , 1
+FREQUENCY: 10125.0 , 1.0 , 1
+FREQUENCY: 14175.0 , 1.0 , 1
+FREQUENCY: 18100.0 , 1.0 , 1
+FREQUENCY: 21275.0 , 1.0 , 1
+FREQUENCY: 24900.0 , 1.0 , 1
+FREQUENCY: 28900.0 , 1.0 , 1
+FREQUENCY: 50500.0 , 1.0 , 1
+
+# Filterarea IN= Lower Frequency OUT= Higher Frequency 
+# Frequency in kHz 
+Filter1In: 	3500.0
+Filter1Out:	3800.0
+Filter2In: 	7000.0
+Filter2Out:	7200.0
+Filter3In: 	10100.0
+Filter3Out:	10150.0
+Filter4In: 	14000.0
+Filter4Out:	14350.0
+Filter5In: 	18050.0
+Filter5Out:	18200.0
+Filter6In: 	24890.0
+Filter6Out:	24999.0
+Filter7In:	28000.0
+Filter7Out:	29900.0
+Filter8In: 	50000.0
+Filter8Out:	54000.0
+
+#Timing  in seconds
+CYCLIC:		600
+TIMEOUT:	60
+STOPBETWEEN:	10
+	
