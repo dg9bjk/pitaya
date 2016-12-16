@@ -42,9 +42,9 @@ void sigcodecw(int Bitinfo,struct ConfigArray *Config,int txloop)
   rp_channel_t Channel;
   switch(Config->Output[txloop])
   {
-    case 1: Channel = RP_CH_1;
+    case 1: Channel  = RP_CH_1;
           break;
-    case 2: Channel = RP_CH_2;
+    case 2: Channel  = RP_CH_2;
           break;
     default: Channel = RP_CH_1;
           break;
@@ -92,7 +92,7 @@ int cw(struct ConfigArray *Config,int txloop)
   char input	       = 0;
   float frequency      = Config->Frequency[txloop];
   float phase          = Config->Phase[txloop];
-  float amplitude_off = 0.0;
+  float amplitude_off  = 0.0;
   char *aktchar;
   time_t timestamp;
   struct tm *ts;
@@ -100,9 +100,9 @@ int cw(struct ConfigArray *Config,int txloop)
   rp_channel_t Channel;
   switch(Config->Output[txloop])
   {
-    case 1: Channel = RP_CH_1;
+    case 1: Channel  = RP_CH_1;
           break;
-    case 2: Channel = RP_CH_2;
+    case 2: Channel  = RP_CH_2;
           break;
     default: Channel = RP_CH_1;
           break;
@@ -250,7 +250,7 @@ int cw(struct ConfigArray *Config,int txloop)
   Zeichencode[90]  = Z;
   Zeichencode[122] = Z;
  
-  printf("\n CW-Bake \n");
+  printf("\n CW-Bake  Sending on %.3f kHz on Channel %d with max. Amplitude %.2f\n",Config->Frequency[txloop],Config->Output[txloop],Config->Amplitude[txloop]);
 
   rp_GenMode(Channel, RP_GEN_MODE_CONTINUOUS); // Kontinuierlich
   rp_GenWaveform(Channel, RP_WAVEFORM_SINE);   // Sinus
@@ -288,9 +288,9 @@ void sigcodertty(int Bitinfo,struct ConfigArray *Config,int txloop)
   rp_channel_t Channel;
   switch(Config->Output[txloop])
   {
-    case 1: Channel = RP_CH_1;
+    case 1: Channel  = RP_CH_1;
           break;
-    case 2: Channel = RP_CH_2;
+    case 2: Channel  = RP_CH_2;
           break;
     default: Channel = RP_CH_1;
           break;
@@ -346,14 +346,14 @@ int rtty(struct ConfigArray *Config,int txloop)
 
   float frequency      = Config->Frequency[txloop];
   float phase          = Config->Phase[txloop];
-  float amplitude_on  = Config->Amplitude[txloop];
+  float amplitude_on   = Config->Amplitude[txloop];
 
   rp_channel_t Channel;
   switch(Config->Output[txloop])
   {
-    case 1: Channel = RP_CH_1;
+    case 1: Channel  = RP_CH_1;
           break;
-    case 2: Channel = RP_CH_2;
+    case 2: Channel  = RP_CH_2;
           break;
     default: Channel = RP_CH_1;
           break;
@@ -507,7 +507,7 @@ int rtty(struct ConfigArray *Config,int txloop)
   Zeichencode[90]  = Z;
   Zeichencode[122] = Z;
  
-  printf("\n RTTY-Bake \n");
+  printf("\n RTTY-Bake Sending on %.3f kHz on Channel %d with max. Amplitude %.2f\n",Config->Frequency[txloop],Config->Output[txloop],Config->Amplitude[txloop]);
   
   rp_GenMode(Channel, RP_GEN_MODE_CONTINUOUS); // Kontinuierlich
   rp_GenWaveform(Channel, RP_WAVEFORM_SINE);   // Sinus
@@ -770,6 +770,16 @@ int configread(struct ConfigArray *Config)
 }
 
 //-------------------------------------------------------------------
+int filterswitch(struct ConfigArray *Config,int txloop)
+{
+//  Config->Frequency[MAXFREQ];
+//  Config->Output   [MAXFREQ];
+//  Config->FilterLowFlag [MAXDIGIOUT];
+//  Config->FilterHighFlag[MAXDIGIOUT];
+;
+}
+
+//-------------------------------------------------------------------
 int main()
 {
   int i;
@@ -792,7 +802,7 @@ int main()
   // Init Frequency-Array -> 0.0 = not used
   for(i=0;i<MAXFREQ;i++)
   {
-    Config.Frequency[i] = 0.0;
+    Config.Frequency[i] = 1.0;
     Config.Amplitude[i] = 0.0;
     Config.Output   [i] = 1;
   }
@@ -823,6 +833,7 @@ int main()
     {
       if(Config.Frequency[txloop] != 0.0)
       {
+        filterswitch(&Config,txloop);
         health();
         cw(&Config,txloop);
         sleep(Config.WaitLoop);
