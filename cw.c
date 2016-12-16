@@ -6,6 +6,7 @@
 
 // Globale Variablen:
 float frequency1		= 3575000.0; // Betriebsfrequenz in Hz (max. 60MHz)
+float phase1			= 0.0;      // ° (-180.0° ... 0.0° ... 180.0°)
 float amplitude1_on		= 1.0;	     // Pegel bei Signalausgabe in Vpp (max. 1.0 Vpp)
 float amplitude1_off		= 0.0;	     // Pegel bei Ruheausgabe 
 
@@ -55,8 +56,8 @@ int main()
   int i,n;
   int Bitinfo   = 0; 
   char input	= 0;
+  char TextArray[] = "Red Pitaya Bake de DG9BJK";
   char *aktchar;
-  char TextArray[] = "Automatic Generated Red Pitaya Test Bake de DG9BJK";
   time_t timestamp;
   struct tm *ts;
 
@@ -208,13 +209,11 @@ int main()
   }
 
 //Generator CH 1
-  float phase1			= 0.0;      // ° (-180.0° ... 0.0° ... 180.0°)
   rp_GenMode(RP_CH_1, RP_GEN_MODE_CONTINUOUS); // Kontinuierlich
   rp_GenWaveform(RP_CH_1, RP_WAVEFORM_SINE);   // Sinus
   rp_GenFreq(RP_CH_1,frequency1);
   rp_GenPhase(RP_CH_1,phase1);
   rp_GenAmp(RP_CH_1,amplitude1_off); // No Signal
-
   rp_GenOutEnable(RP_CH_1);
 
   timestamp = time(NULL);

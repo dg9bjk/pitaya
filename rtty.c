@@ -57,9 +57,8 @@ int main()
   int Zahlenmode  = 0;
   char input	  = 0;
   char *aktchar;
+  char TextArray[] = "Red Pitaya Bake de DG9BJK";
   char *st_char;
-  char TextArray[] = "ryryryryryry Automatic Generated Red Pitaya Test Bake de DG9BJK ryryryryry";
-//  char TextArray[] = "ryryryryryryryryryryryryryryryryryryryryryryryryryryryryryryryryryryryryry";
   time_t timestamp;
   struct tm *ts;
 

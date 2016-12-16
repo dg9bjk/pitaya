@@ -128,7 +128,7 @@ int main()
 
   rp_calib_params_t caldata;
     
-  printf("\nRP-Parameter \n");
+  printf("\nHealth-Parameter \n");
   
   if(rp_Init() != RP_OK)
   {
